@@ -13,20 +13,30 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     
     <style>
-        :root { --primary: #2c3e50; --secondary: #27ae60; --accent: #e67e22; --bg: #f8f9fa; --table-header: #34495e; --warning: #e74c3c; }
+        /* 視覺色彩主題全面重塑：科技極客藍、高能火箭橘、霓虹深紫 */
+        :root { 
+            --primary: #1a252f;          /* 科技極黑藍 */
+            --secondary: #e67e22;        /* 火箭加速橘 */
+            --accent: #9b59b6;           /* 增貸霓虹紫 */
+            --bg: #f4f6f8;               /* 乾淨淺灰底 */
+            --table-header: #2c3e50;     /* 深色表格頂 */
+            --warning: #e74c3c;          /* 警報危險紅 */
+            --success-text: #27ae60;     /* 獲利安全綠 */
+        }
+        
         body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); padding: 10px; margin: 0; }
-        .container { max-width: 1050px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin: auto; }
-        .header-container { text-align: center; border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 20px; }
+        .container { max-width: 1050px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(26,37,47,0.06); margin: auto; }
+        .header-container { text-align: center; border-bottom: 3px solid var(--secondary); padding-bottom: 10px; margin-bottom: 20px; }
         h1 { display: block; color: var(--primary); margin: 0; font-size: 1.4rem; line-height: 1.4; }
         .author-tag { font-size: 0.8rem; color: #7f8c8d; font-weight: normal; margin-top: 5px; display: block; }
         
         /* SEO 文章區塊樣式 */
-        .seo-content { margin-top: 40px; border-top: 1px solid #eee; padding: 20px; color: #444; line-height: 1.8; background: #fcfcfc; border-radius: 10px; }
-        .seo-content h2 { color: var(--primary); font-size: 1.2rem; margin-bottom: 15px; border-left: 5px solid var(--accent); padding-left: 10px; }
+        .seo-content { margin-top: 40px; border-top: 1px solid #eee; padding: 20px; color: #444; line-height: 1.8; background: #fafafa; border-radius: 10px; }
+        .seo-content h2 { color: var(--primary); font-size: 1.2rem; margin-bottom: 15px; border-left: 5px solid var(--secondary); padding-left: 10px; }
         .seo-content p { font-size: 0.95rem; margin-bottom: 15px; }
 
         .info-icon { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: #bdc3c7; color: white; border-radius: 50%; font-size: 10px; cursor: help; margin-left: 4px; position: relative; vertical-align: middle; }
-        .info-icon:hover::after { content: attr(data-title); position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 12px; white-space: normal; z-index: 100; width: 200px; line-height: 1.4; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .info-icon:hover::after { content: attr(data-title); position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%); background: #1a252f; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 12px; white-space: normal; z-index: 100; width: 200px; line-height: 1.4; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 15px; }
         .input-group { margin-bottom: 10px; }
@@ -35,7 +45,7 @@
         input, select { 
             width: 100%; 
             padding: 10px 12px; 
-            border: 1px solid #ddd; 
+            border: 1px solid #dee2e6; 
             border-radius: 8px; 
             box-sizing: border-box; 
             font-size: 16px; 
@@ -43,49 +53,59 @@
             line-height: normal; 
             appearance: none; 
             -webkit-appearance: none;
+            background-color: #fff;
+            transition: border-color 0.2s;
         }
+        input:focus, select:focus { border-color: var(--secondary); outline: none; }
 
-        .loan-toggle-container { background: #fff3e0; padding: 15px; border-radius: 10px; margin: 15px 0; display: flex; align-items: center; justify-content: space-between; border: 1px solid #ffe0b2; }
+        /* 信貸模組外框改為太空科技感淡紫色调 */
+        .loan-toggle-container { background: #f4ecf7; padding: 15px; border-radius: 10px; margin: 15px 0; display: flex; align-items: center; justify-content: space-between; border: 1px solid #e8daef; }
         .switch { position: relative; display: inline-block; width: 50px; height: 24px; flex-shrink: 0; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
         .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider { background-color: var(--secondary); }
         input:checked + .slider:before { transform: translateX(26px); }
         
-        #loanSettings { background: #fafafa; padding: 15px; border-radius: 10px; border: 1px dashed var(--accent); margin-top: 10px; }
+        #loanSettings { background: #fdfefe; padding: 15px; border-radius: 10px; border: 1px dashed var(--accent); margin-top: 10px; }
         
-        .rule-note { background: #fdfdfd; border-left: 4px solid #bdc3c7; padding: 15px; margin: 20px 0; font-size: 0.82em; color: #666; line-height: 1.6; }
-        .rule-title { font-weight: bold; color: #34495e; margin-bottom: 5px; display: block; }
+        .rule-note { background: #f8f9f9; border-left: 4px solid #adbbca; padding: 15px; margin: 20px 0; font-size: 0.82em; color: #566573; line-height: 1.6; }
+        .rule-title { font-weight: bold; color: #2c3e50; margin-bottom: 5px; display: block; }
 
         .alert-box { background: #fde8e8; border: 1px solid #f8b4b4; color: var(--warning); padding: 12px; border-radius: 8px; font-size: 0.85em; font-weight: bold; margin: 15px 0; display: none; line-height: 1.5; }
         
         .btn-group { display: flex; flex-direction: column; gap: 10px; }
         button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-calc { background: var(--secondary); color: white; }
-        .btn-calc:hover { background: #219150; }
-        .btn-export { background: #3498db; color: white; display: none; }
         
-        .result { margin-top: 30px; display: none; border-top: 2px dashed #eee; padding-top: 20px; }
+        /* 升級主色調為能量橘 */
+        .btn-calc { background: var(--secondary); color: white; }
+        .btn-calc:hover { background: #ca6f1e; }
+        .btn-export { background: #34495e; color: white; display: none; }
+        .btn-export:hover { background: #1a252f; }
+        
+        .result { margin-top: 30px; display: none; border-top: 2px dashed #dee2e6; padding-top: 20px; }
         .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-        .res-box { padding: 15px; background: white; border-radius: 12px; text-align: center; border: 1px solid #eef2f7; }
+        .res-box { padding: 15px; background: white; border-radius: 12px; text-align: center; border: 1px solid #eef2f7; box-shadow: 0 4px 6px rgba(0,0,0,0.01); }
         .res-label { font-size: 0.75em; color: #7f8c8d; margin-bottom: 5px; font-weight: bold; }
         .res-value { font-size: 1.1em; font-weight: 900; word-break: break-all; }
         
         .view-mode-selector { margin-bottom: 15px; text-align: center; }
-        .view-mode-selector select { width: auto; min-width: 140px; background: #eef2f7; border: none; font-weight: bold; padding: 8px; border-radius: 5px; }
+        .view-mode-selector select { width: auto; min-width: 140px; background: #eef2f7; border: none; font-weight: bold; padding: 8px; border-radius: 5px; height: auto; }
         
         .chart-container { position: relative; height: 350px; width: 100%; margin-bottom: 30px; }
-        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid #eee; border-radius: 8px; }
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid #eef2f7; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; font-size: 0.85em; min-width: 750px; }
         thead th { position: sticky; top: 0; background: var(--table-header); color: white; padding: 12px; z-index: 10; }
-        td { border-bottom: 1px solid #eee; padding: 10px; text-align: center; }
-        tr.highlight-year { background: #fffcf0 !important; font-weight: bold; border-left: 5px solid var(--accent); }
-        tr.highlight-inject { background: #e8f8f5 !important; font-weight: bold; border-left: 5px solid var(--secondary); }
-        .col-net { color: #e74c3c; font-weight: bold; }
-        .col-gain { color: #27ae60; font-weight: bold; }
+        td { border-bottom: 1px solid #f2f4f4; padding: 10px; text-align: center; }
+        
+        /* 報表底色重塑：年份黃底淡化，插隊點改用醒目的淡紫色調 */
+        tr.highlight-year { background: #f9f9fb !important; font-weight: bold; border-left: 5px solid var(--table-header); }
+        tr.highlight-inject { background: #f5eeeb !important; font-weight: bold; border-left: 5px solid var(--secondary); }
+        .col-net { color: var(--primary); font-weight: bold; }
+        .col-gain { color: var(--success-text); font-weight: bold; }
+        .col-loss { color: var(--warning); font-weight: bold; }
 
-        .footer-container { max-width: 1050px; margin: 30px auto; padding: 20px; color: #7f8c8d; font-size: 0.8rem; line-height: 1.8; border-top: 1px solid #ddd; }
+        .footer-container { max-width: 1050px; margin: 30px auto; padding: 20px; color: #7f8c8d; font-size: 0.8rem; line-height: 1.8; border-top: 1px solid #dee2e6; }
         .footer-content { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 30px; }
         .footer-disclaimer { flex: 2; min-width: 300px; }
         .footer-info { flex: 1; min-width: 200px; text-align: right; }
@@ -102,7 +122,6 @@
         <span class="author-tag">made by 阿奇 ver.1.0.0 2026</span>
     </div>
     
-    <!-- 基礎設定區 -->
     <div class="grid">
         <div class="input-group"><label>開始年月</label><input type="month" id="startDate" value="2026-01"></div>
         <div class="input-group"><label>期初本金 (元)</label><input type="number" id="initPrincipal" value="700000"></div>
@@ -115,10 +134,9 @@
         <div class="input-group"><label>股票年化報酬率 (%)</label><input type="number" id="returnRate" value="13" step="0.1"></div>
     </div>
 
-    <!-- 信貸加速模組開關 -->
     <div class="loan-toggle-container">
         <div>
-            <strong style="color: #e67e22;">⚡ 啟用信貸插隊加速功能</strong>
+            <strong style="color: var(--secondary);">⚡ 啟用信貸插隊加速功能</strong>
             <div style="font-size: 0.75em; color: #7f8c8d;">模擬提前貼現未來現金流，利用時間差套利</div>
         </div>
         <label class="switch">
@@ -127,7 +145,6 @@
         </label>
     </div>
 
-    <!-- 信貸進階設定 -->
     <div id="loanSettings">
         <div class="grid">
             <div class="input-group"><label>信貸總額 (元)</label><input type="number" id="loanAmount" value="500000"></div>
@@ -161,11 +178,10 @@
             </div>
         </div>
         <div class="grid" style="grid-template-columns: 1fr;">
-            <div style="font-size: 0.85em; color: #d35400; font-weight: bold;" id="calculatedPmtText">預估每月本利攤還金額：$0 元</div>
+            <div style="font-size: 0.85em; color: var(--secondary); font-weight: bold;" id="calculatedPmtText">預估每月本利攤還金額：$0 元</div>
         </div>
     </div>
 
-    <!-- 警報與提示區 -->
     <div id="alertBox" class="alert-box"></div>
 
     <div class="rule-note">
@@ -182,13 +198,12 @@
         <button id="btnExport" class="btn-export" onclick="exportToExcel()">匯出專業美化版 Excel 報表</button>
     </div>
 
-    <!-- 試算結果展現區 -->
     <div id="resultBox" class="result">
         <div class="summary-grid">
             <div class="res-box"><div class="res-label">最終股票市值</div><div class="res-value" id="resTotal" style="color:#2980b9;">$0</div></div>
-            <div class="res-box"><div class="res-label">手頭累積現金</div><div class="res-value" id="resCash" style="color:#27ae60;">$0</div></div>
-            <div class="res-box" style="background: #fffcf0;"><div class="res-label">槓桿套利淨效益 (對比純存股)</div><div class="res-value col-gain" id="resGain">$0</div></div>
-            <div class="res-box" style="background: #fff5f5;"><div class="res-label">最終帳戶總淨資產</div><div class="res-value" id="resNet" style="color:#e74c3c;">$0</div></div>
+            <div class="res-box"><div class="res-label">手頭累積現金</div><div class="res-value" id="resCash" style="color:var(--success-text);">$0</div></div>
+            <div class="res-box" style="background: #fdfefe;"><div class="res-label">槓桿套利淨效益 (對比純存股)</div><div class="res-value col-gain" id="resGain">$0</div></div>
+            <div class="res-box" style="background: #fafbfc;"><div class="res-label">最終帳戶總淨資產</div><div class="res-value" id="resNet" style="color:var(--primary);">$0</div></div>
         </div>
 
         <div class="view-mode-selector">
@@ -232,7 +247,7 @@
     <div class="footer-content">
         <div class="footer-disclaimer">
             <strong style="color: #34495e;">⚠️ 免責聲明：</strong><br>
-            本試算結果僅供財務模型模擬參考，不構成任何實際投資與借貸建議。信貸開槓桿雖然不具備股票質押的斷頭風險，但仍受市場波動與個人還款現金流之嚴格約束，申辦前請務必審慎評估。
+            本試算結果僅供財務模型模擬參考，不構成任何實際投資與借貸建議。信貸開槓桿雖然不具備股票質押的斷頭風險，但仍受市場波動與個人還款現金流之嚴格约束，申辦前請務必審慎評估。
         </div>
         <div class="footer-info">
             <strong style="color: #34495e;">關於工具：</strong><br>
@@ -247,10 +262,9 @@
 
 <script>
 let myChart = null;
-let fullDataRaw = []; // 存放信貸組數據
-let benchmarkDataRaw = []; // 存放純定期定額對照組數據
+let fullDataRaw = []; 
+let benchmarkDataRaw = []; 
 
-// 即時監聽計算信貸月繳款
 document.querySelectorAll('#loanAmount, #loanRate, #loanPeriods').forEach(input => {
     input.addEventListener('input', updatePmtPreview);
 });
@@ -263,7 +277,6 @@ function updatePmtPreview() {
     document.getElementById('calculatedPmtText').innerText = `預估每月本利攤還金額：$${pmt.toLocaleString()} 元`;
 }
 
-// 初始化預覽
 updatePmtPreview();
 
 function toggleLoanSettings() {
@@ -276,7 +289,6 @@ function toggleInjectTime() {
     document.getElementById('customInjectGroup').style.display = (mode === 'custom') ? 'inline-flex' : 'none';
 }
 
-// 標準本利攤還公式 (PMT)
 function calculatePMT(principal, annualRate, months) {
     if (months <= 0) return 0;
     if (annualRate === 0) return Math.round(principal / months);
@@ -286,12 +298,10 @@ function calculatePMT(principal, annualRate, months) {
 }
 
 function calculate() {
-    // 清除舊警報
     const alertBox = document.getElementById('alertBox');
     alertBox.style.display = 'none';
     alertBox.innerHTML = '';
 
-    // 讀取基礎參數
     const startVal = document.getElementById('startDate').value;
     const startYear = parseInt(startVal.split('-')[0]);
     const startMonth = parseInt(startVal.split('-')[1]);
@@ -301,7 +311,6 @@ function calculate() {
     const returnRate = parseFloat(document.getElementById('returnRate').value);
     const compoundFreq = document.getElementById('compoundFreq').value;
     
-    // 讀取信貸參數
     const isLoanEnabled = document.getElementById('enableLoan').checked;
     const loanAmount = isLoanEnabled ? (parseFloat(document.getElementById('loanAmount').value) || 0) : 0;
     const loanRate = isLoanEnabled ? (parseFloat(document.getElementById('loanRate').value) || 0) : 0;
@@ -314,31 +323,29 @@ function calculate() {
     const stockMonthlyRate = (returnRate / 100) / 12;
     const loanMonthlyRate = (loanRate / 100) / 12;
 
-    // 計算精確插隊月份
-    let targetInjectMonthIdx = 0; // 第 0 個月代入（第1個月初）
+    let targetInjectMonthIdx = 0; 
     if (isLoanEnabled && injectMode === 'custom') {
         const iy = parseInt(document.getElementById('injectYear').value) || 1;
         const im = parseInt(document.getElementById('injectMonth').value) || 1;
         targetInjectMonthIdx = (iy - 1) * 12 + (im - 1);
     }
 
-    // 邏輯防呆檢查
     if (isLoanEnabled && loanRate >= returnRate) {
-        alertBox.innerHTML += `⚠️ <b>利差倒掛警告：</b>您的信貸利率 (${loanRate}%) 高於或等於股市預期報酬率 (${returnRate}%)！此狀態下盲目借貸開槓桿將產生「負套利」，最終資產效益將會劣於純存股方案。<br>`;
+        alertBox.innerHTML += `⚠️ <b>利差倒掛警告：</b>您的信貸利率 (${loanRate}%) 高於或等於股市預期報酬率 (${returnRate}%)！此狀態下盲目借貸開槓桿將產生「負套利」。<br>`;
         alertBox.style.display = 'block';
     }
 
     const pmt = calculatePMT(loanAmount, loanRate, loanPeriods);
     if (isLoanEnabled && pmt > monthlyInvest) {
-        alertBox.innerHTML += `⚠️ <b>現金流赤字警訊：</b>您的每月信貸還款金額 ($${pmt.toLocaleString()}) 超過了您的基礎定期定額預算 ($${monthlyInvest.toLocaleString()})！這代表還款期間你每個月除了耗盡定期定額，還需要額外掏出口袋現金來填補黑洞，請注意收支安全。<br>`;
+        alertBox.innerHTML += `⚠️ <b>現金流赤字警訊：</b>您的每月信貸還款金額 ($${pmt.toLocaleString()}) 超過了您的基礎定期定額預算！還款期間每個月需要額外掏出口袋現金填補。<br>`;
         alertBox.style.display = 'block';
     }
 
-    // ==================== 1. 計算純定期定額對照組 (Benchmark) ====================
+    // 1. 純定期定額對照組
     let benchAssets = initPrincipal;
     benchmarkDataRaw = [];
     for (let m = 0; m < totalMonths; m++) {
-        benchAssets += monthlyInvest; // 期初年金注入
+        benchAssets += monthlyInvest; 
         if (compoundFreq === 'month') {
             benchAssets *= (1 + stockMonthlyRate);
         } else if (compoundFreq === 'year' && (m + 1) % 12 === 0) {
@@ -347,7 +354,7 @@ function calculate() {
         benchmarkDataRaw.push(Math.round(benchAssets));
     }
 
-    // ==================== 2. 計算信貸加速組邏輯 ====================
+    // 2. 信貸加速組
     fullDataRaw = [];
     let stockMarketValue = initPrincipal;
     let remainingLoanPrincipal = 0;
@@ -359,9 +366,8 @@ function calculate() {
         let eventText = "-";
         let isInjectThisMonth = false;
 
-        // 偵測是否到了插隊撥款月份
         if (isLoanEnabled && m === targetInjectMonthIdx) {
-            stockMarketValue += (loanAmount - loanFee); // 市值直接灌入 (扣開辦費)
+            stockMarketValue += (loanAmount - loanFee); 
             remainingLoanPrincipal = loanAmount;
             currentRemainingPeriods = loanPeriods;
             loanMonthlyPayment = pmt;
@@ -369,7 +375,6 @@ function calculate() {
             isInjectThisMonth = true;
         }
 
-        // 處理每月本利攤還扣除與剩餘資金投入分流
         let actualMonthlyPayment = 0;
         let actualInvestToStock = monthlyInvest;
 
@@ -377,25 +382,20 @@ function calculate() {
             actualMonthlyPayment = loanMonthlyPayment;
             eventText = isInjectThisMonth ? eventText : `還款中 (${loanPeriods - currentRemainingPeriods + 1}/${loanPeriods})`;
             
-            // 計算本期利息與本金消長
             let interestExpense = remainingLoanPrincipal * loanMonthlyRate;
             let principalRepayment = actualMonthlyPayment - interestExpense;
             remainingLoanPrincipal = Math.max(0, remainingLoanPrincipal - principalRepayment);
             currentRemainingPeriods--;
 
-            // 資金分流決策
             if (reinvestStrategy === 'reinvest') {
-                // 餘額再投入 (如果定期定額比月繳款少，強制實投為0，不扣到負數)
                 actualInvestToStock = Math.max(0, monthlyInvest - actualMonthlyPayment);
             } else {
-                // 保留現金，實投歸 0，剩餘的款項全數進口袋
                 let leftover = Math.max(0, monthlyInvest - actualMonthlyPayment);
                 pocketCash += leftover;
                 actualInvestToStock = 0;
             }
         }
 
-        // 資金注入股市並跑複利
         stockMarketValue += actualInvestToStock;
         
         if (compoundFreq === 'month') {
@@ -404,7 +404,6 @@ function calculate() {
             stockMarketValue *= (1 + (returnRate / 100));
         }
 
-        // 計算真實總身價 (股票市值 + 口袋現金 - 剩餘負債)
         let netWorth = stockMarketValue + pocketCash - remainingLoanPrincipal;
         let d = new Date(startYear, startMonth - 1 + m);
 
@@ -424,7 +423,7 @@ function calculate() {
         });
     }
 
-    // ==================== 3. 渲染頂部 Dashboard 數據 ====================
+    // 3. 渲染 Dashboard 數據
     const finalItem = fullDataRaw[totalMonths - 1];
     const finalBench = benchmarkDataRaw[totalMonths - 1];
     const leverageGain = finalItem.netWorth - finalBench;
@@ -435,10 +434,9 @@ function calculate() {
     document.getElementById('resTotal').innerText = "$" + finalItem.stockMarketValue.toLocaleString();
     document.getElementById('resCash').innerText = "$" + finalItem.pocketCash.toLocaleString();
     
-    // 渲染套利淨效益與顏色樣式
     const gainBox = document.getElementById('resGain');
     gainBox.innerText = (leverageGain >= 0 ? "+$" : "-$") + Math.abs(Math.round(leverageGain)).toLocaleString();
-    gainBox.className = leverageGain >= 0 ? "res-value col-gain" : "res-value col-net";
+    gainBox.className = leverageGain >= 0 ? "res-value col-gain" : "res-value col-loss";
 
     document.getElementById('resNet').innerText = "$" + finalItem.netWorth.toLocaleString();
     
@@ -452,19 +450,16 @@ function renderTable() {
     let html = "";
 
     if (mode === 'year') {
-        // 年報表：過濾出每年最後一個月
         const yearlyData = fullDataRaw.filter((item, idx) => {
             const nextItem = fullDataRaw[idx + 1];
             return !nextItem || nextItem.actualYear !== item.actualYear;
         });
 
         yearlyData.forEach(item => {
-            // 累加該年份一整年的還款總額
             const thisYearPayments = fullDataRaw
                 .filter(f => f.actualYear === item.actualYear)
                 .reduce((sum, curr) => sum + curr.monthlyPayment, 0);
 
-            // 判斷該年是否包含插隊點
             const hasInject = fullDataRaw.some(f => f.actualYear === item.actualYear && f.isInjectPoint);
             let rowClass = hasInject ? 'highlight-inject' : '';
 
@@ -480,7 +475,6 @@ function renderTable() {
             </tr>`;
         });
     } else {
-        // 月報表：全量輸出
         fullDataRaw.forEach(item => {
             let rowClass = '';
             if (item.isInjectPoint) rowClass = 'highlight-inject';
@@ -502,7 +496,6 @@ function renderTable() {
 }
 
 function updateChart() {
-    // 每3個月抽樣一次，減少圖表節點擁擠
     const filteredLabels = fullDataRaw.filter((_, i) => i % 3 === 0 || i === fullDataRaw.length - 1).map(d => d.dateLabel);
     const netWorthData = fullDataRaw.filter((_, i) => i % 3 === 0 || i === fullDataRaw.length - 1).map(d => d.netWorth);
     const benchmarkData = fullDataRaw.filter((_, i) => i % 3 === 0 || i === fullDataRaw.length - 1).map((_, i) => benchmarkDataRaw[i * 3] || benchmarkDataRaw[benchmarkDataRaw.length - 1]);
@@ -516,9 +509,9 @@ function updateChart() {
         data: {
             labels: filteredLabels,
             datasets: [
-                { label: '信貸組方案：總淨資產', data: netWorthData, borderColor: '#e67e22', backgroundColor: 'rgba(230, 126, 34, 0.05)', fill: true, tension: 0.3, borderWidth: 3 },
-                { label: '對照組方案：純定期定額市值', data: benchmarkData, borderColor: '#3498db', backgroundColor: 'transparent', borderDash: [6, 4], tension: 0.3, borderWidth: 2 },
-                { label: '信貸組方案：信貸未還本金', data: loanData, borderColor: '#95a5a6', backgroundColor: 'rgba(149, 165, 166, 0.05)', fill: true, tension: 0.2, borderWidth: 1 }
+                { label: '信貸加速組：真實淨資產', data: netWorthData, borderColor: '#e67e22', backgroundColor: 'rgba(230, 126, 34, 0.03)', fill: true, tension: 0.3, borderWidth: 3 },
+                { label: '對照組：純定期定額市值', data: benchmarkData, borderColor: '#2c3e50', backgroundColor: 'transparent', borderDash: [6, 4], tension: 0.3, borderWidth: 2 },
+                { label: '未還信貸本金餘額', data: loanData, borderColor: '#95a5a6', backgroundColor: 'rgba(149, 165, 166, 0.02)', fill: true, tension: 0.2, borderWidth: 1 }
             ]
         },
         options: { 
