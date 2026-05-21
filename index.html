@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>信貸加速股票複利計算機：2026 專業存股與信用貸款套利試算 - 阿奇專業版</title>
+    <title>定期定額複利計算機：2026 專業存股與信貸槓桿套利試算 - 阿奇專業版</title>
     <meta name="description" content="阿奇開發的專業信貸加速股票複利計算機。支援定期定額存股中途信貸插隊試算、每月本利攤還資金流分流（再投入/保留現金）模擬、利差倒掛警告及 Excel 報表匯出。">
 
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
@@ -118,8 +118,8 @@
 
 <div class="container">
     <div class="header-container">
-        <h1>🚀 定期定額複利計算機（信貸增貸加速版）</h1>
-        <span class="author-tag">made by 阿奇 ver.1.0.0 2026</span>
+        <h1>🚀 定期定額複利計算機（含信貸槓桿功能）</h1>
+        <span class="author-tag">made by 阿奇 ver.1.1.0 2026</span>
     </div>
     
     <div class="grid">
@@ -136,7 +136,7 @@
 
     <div class="loan-toggle-container">
         <div>
-            <strong style="color: var(--secondary);">⚡ 啟用信貸插隊加速功能</strong>
+            <strong style="color: var(--secondary);">⚡ 啟用信貸槓桿功能</strong>
             <div style="font-size: 0.75em; color: #7f8c8d;">模擬提前貼現未來現金流，利用時間差套利</div>
         </div>
         <label class="switch">
@@ -154,18 +154,12 @@
         </div>
         <div class="grid" style="grid-template-columns: 1fr 1fr;">
             <div class="input-group">
-                <label>信貸插隊時間點<span class="info-icon" data-title="同步開始：第 1 個月直接撥款入市。中途插隊：在投資一段時間後的指定年份月份突然撥款。">i</span></label>
-                <select id="injectMode" onchange="toggleInjectTime()"><option value="sync">與投資同步開始</option><option value="custom">自訂中途插隊</option></select>
+                <label>信貸投入時間點<span class="info-icon" data-title="與投資同步開始：第 1 個月直接撥款入市。自訂特定年月：在未來的指定特定月份突然撥款插隊。">i</span></label>
+                <select id="injectMode" onchange="toggleInjectTime()"><option value="sync">與投資同步開始</option><option value="custom">自訂特定年月</option></select>
             </div>
-            <div id="customInjectGroup" class="input-group" style="display:none; grid-template-columns: 1fr 1fr; gap: 5px;">
-                <div>
-                    <label>第幾年插隊</label>
-                    <input type="number" id="injectYear" value="1" min="1">
-                </div>
-                <div>
-                    <label>第幾月插隊</label>
-                    <input type="number" id="injectMonth" value="1" min="1" max="12">
-                </div>
+            <div id="customInjectGroup" class="input-group" style="display:none;">
+                <label>信貸加入年月</label>
+                <input type="month" id="injectDate" value="2026-06">
             </div>
         </div>
         <div class="grid" style="grid-template-columns: 1fr;">
@@ -251,7 +245,7 @@
         </div>
         <div class="footer-info">
             <strong style="color: #34495e;">關於工具：</strong><br>
-            版本：Ver 1.0.0 (2026 獨立信貸加速版)<br>
+            版本：Ver 1.1.0 (2026 獨立信貸槓桿版)<br>
             開發：阿奇 Archie Lab
         </div>
     </div>
@@ -286,7 +280,7 @@ function toggleLoanSettings() {
 
 function toggleInjectTime() {
     const mode = document.getElementById('injectMode').value;
-    document.getElementById('customInjectGroup').style.display = (mode === 'custom') ? 'inline-flex' : 'none';
+    document.getElementById('customInjectGroup').style.display = (mode === 'custom') ? 'block' : 'none';
 }
 
 function calculatePMT(principal, annualRate, months) {
@@ -323,11 +317,15 @@ function calculate() {
     const stockMonthlyRate = (returnRate / 100) / 12;
     const loanMonthlyRate = (loanRate / 100) / 12;
 
+    // 核心優化：直接解析 HTML5 Month 選擇器，動態推算精確的插隊月索引
     let targetInjectMonthIdx = 0; 
     if (isLoanEnabled && injectMode === 'custom') {
-        const iy = parseInt(document.getElementById('injectYear').value) || 1;
-        const im = parseInt(document.getElementById('injectMonth').value) || 1;
-        targetInjectMonthIdx = (iy - 1) * 12 + (im - 1);
+        const injectVal = document.getElementById('injectDate').value;
+        const injectYear = parseInt(injectVal.split('-')[0]);
+        const injectMonth = parseInt(injectVal.split('-')[1]);
+        
+        targetInjectMonthIdx = (injectYear - startYear) * 12 + (injectMonth - startMonth);
+        if (targetInjectMonthIdx < 0) targetInjectMonthIdx = 0; // 防呆：不能早於投資開始時間
     }
 
     if (isLoanEnabled && loanRate >= returnRate) {
@@ -496,10 +494,12 @@ function renderTable() {
 }
 
 function updateChart() {
-    const filteredLabels = fullDataRaw.filter((_, i) => i % 3 === 0 || i === fullDataRaw.length - 1).map(d => d.dateLabel);
-    const netWorthData = fullDataRaw.filter((_, i) => i % 3 === 0 || i === fullDataRaw.length - 1).map(d => d.netWorth);
-    const benchmarkData = fullDataRaw.filter((_, i) => i % 3 === 0 || i === fullDataRaw.length - 1).map((_, i) => benchmarkDataRaw[i * 3] || benchmarkDataRaw[benchmarkDataRaw.length - 1]);
-    const loanData = fullDataRaw.filter((_, i) => i % 3 === 0 || i === fullDataRaw.length - 1).map(d => d.remainingLoanPrincipal);
+    // 優化抽樣邏輯，直接用 monthIndex 的絕對對照組映射，消除多方案圖表不對齊的潛在 Bug
+    const filteredData = fullDataRaw.filter((_, i) => i % 3 === 0 || i === fullDataRaw.length - 1);
+    const filteredLabels = filteredData.map(d => d.dateLabel);
+    const netWorthData = filteredData.map(d => d.netWorth);
+    const loanData = filteredData.map(d => d.remainingLoanPrincipal);
+    const benchmarkData = filteredData.map(d => benchmarkDataRaw[d.monthIndex]);
 
     const ctx = document.getElementById('growthChart').getContext('2d');
     if (myChart) myChart.destroy();
@@ -509,7 +509,7 @@ function updateChart() {
         data: {
             labels: filteredLabels,
             datasets: [
-                { label: '信貸加速組：真實淨資產', data: netWorthData, borderColor: '#e67e22', backgroundColor: 'rgba(230, 126, 34, 0.03)', fill: true, tension: 0.3, borderWidth: 3 },
+                { label: '信貸槓桿組：真實淨資產', data: netWorthData, borderColor: '#e67e22', backgroundColor: 'rgba(230, 126, 34, 0.03)', fill: true, tension: 0.3, borderWidth: 3 },
                 { label: '對照組：純定期定額市值', data: benchmarkData, borderColor: '#2c3e50', backgroundColor: 'transparent', borderDash: [6, 4], tension: 0.3, borderWidth: 2 },
                 { label: '未還信貸本金餘額', data: loanData, borderColor: '#95a5a6', backgroundColor: 'rgba(149, 165, 166, 0.02)', fill: true, tension: 0.2, borderWidth: 1 }
             ]
@@ -529,7 +529,7 @@ function exportToExcel() {
     const today = new Date().toLocaleString();
     
     let exportData = [
-        ["阿奇專業信貸加速套利試算報表 (Ver 1.0.0)"],
+        ["阿奇專業信貸槓桿套利試算報表 (Ver 1.1.0)"],
         [`製表時間：${today}`],
         ["註：本表模擬提前貼現套利，信貸開槓桿請務必注意每月現金流防禦。"],
         [],
@@ -561,7 +561,7 @@ function exportToExcel() {
     const url = window.URL.createObjectURL(data);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `阿奇信貸加速試算_Ver1.0.0.xlsx`;
+    link.download = `阿奇信貸槓桿試算_Ver1.1.0.xlsx`;
     document.body.appendChild(link);
     link.click();
     setTimeout(() => { document.body.removeChild(link); window.URL.revokeObjectURL(url); }, 100);
