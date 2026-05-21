@@ -67,7 +67,7 @@
         input:checked + .slider { background-color: var(--secondary); }
         input:checked + .slider:before { transform: translateX(26px); }
         
-        #loanSettings { background: #fdfefe; padding: 15px; border-radius: 10px; border: 1px dashed var(--accent); margin-top: 10px; }
+        #loanSettings { background: #fdfefe; padding: 15px; border-radius: 10px; border: 1px dashed var(--accent); margin-top: 10px; display: none; }
         
         .rule-note { background: #f8f9f9; border-left: 4px solid #adbbca; padding: 15px; margin: 20px 0; font-size: 0.82em; color: #566573; line-height: 1.6; }
         .rule-title { font-weight: bold; color: #2c3e50; margin-bottom: 5px; display: block; }
@@ -119,13 +119,16 @@
 <div class="container">
     <div class="header-container">
         <h1>🚀 定期定額複利計算機（含信貸槓桿功能）</h1>
-        <span class="author-tag">made by 阿奇 ver.1.1.0 2026</span>
+        <span class="author-tag">made by 阿奇 ver.1.1.1 2026</span>
     </div>
     
     <div class="grid">
         <div class="input-group"><label>開始年月</label><input type="month" id="startDate" value="2026-01"></div>
         <div class="input-group"><label>期初本金 (元)</label><input type="number" id="initPrincipal" value="700000"></div>
-        <div class="input-group"><label>基礎定期定額 (元/月)</label><input type="number" id="monthlyInvest" value="10000"></div>
+        <div class="input-group">
+            <label>基礎定期定額 (元/月)<span class="info-icon" data-title="若開啟信貸功能，將自動扣除月繳款後再投入。">i</span></label>
+            <input type="number" id="monthlyInvest" value="10000">
+        </div>
         <div class="input-group"><label>總投資期數 (年)</label><input type="number" id="periodValue" value="10"></div>
         <div class="input-group">
             <label>複利模式<span class="info-icon" data-title="月複利：資產每月成長一次（標準存股模型）。年複利：資產每年底成長一次。">i</span></label>
@@ -140,7 +143,7 @@
             <div style="font-size: 0.75em; color: #7f8c8d;">模擬提前貼現未來現金流，利用時間差套利</div>
         </div>
         <label class="switch">
-            <input type="checkbox" id="enableLoan" onchange="toggleLoanSettings()" checked>
+            <input type="checkbox" id="enableLoan" onchange="toggleLoanSettings()">
             <span class="slider"></span>
         </label>
     </div>
@@ -215,12 +218,12 @@
                     <tr>
                         <th>時間</th>
                         <th>信貸事件</th>
-                        <th>銀行月繳款</th>
-                        <th>實投股票金額</th>
-                        <th>手頭累積現金</th>
-                        <th>月底股票市值</th>
-                        <th>信貸剩餘本金</th>
-                        <th>帳戶總淨資產</th>
+                        <th id="th-payment">銀行年繳款</th>
+                        <th>定期定額</th>
+                        <th>現金部位</th>
+                        <th>股票市值</th>
+                        <th>剩餘信貸</th>
+                        <th>總淨資產</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
@@ -245,7 +248,7 @@
         </div>
         <div class="footer-info">
             <strong style="color: #34495e;">關於工具：</strong><br>
-            版本：Ver 1.1.0 (2026 獨立信貸槓桿版)<br>
+            版本：Ver 1.1.1 (2026 獨立信貸槓桿版)<br>
             開發：阿奇 Archie Lab
         </div>
     </div>
@@ -445,9 +448,11 @@ function calculate() {
 function renderTable() {
     const mode = document.getElementById('viewMode').value;
     const tableBody = document.getElementById('tableBody');
+    const thPayment = document.getElementById('th-payment');
     let html = "";
 
     if (mode === 'year') {
+        thPayment.innerText = "銀行年繳款";
         const yearlyData = fullDataRaw.filter((item, idx) => {
             const nextItem = fullDataRaw[idx + 1];
             return !nextItem || nextItem.actualYear !== item.actualYear;
@@ -473,6 +478,7 @@ function renderTable() {
             </tr>`;
         });
     } else {
+        thPayment.innerText = "銀行月繳款";
         fullDataRaw.forEach(item => {
             let rowClass = '';
             if (item.isInjectPoint) rowClass = 'highlight-inject';
@@ -528,12 +534,14 @@ function exportToExcel() {
     const mode = document.getElementById('viewMode').value;
     const today = new Date().toLocaleString();
     
+    const paymentHeader = mode === 'year' ? "銀行年繳款" : "銀行月繳款";
+
     let exportData = [
-        ["阿奇專業信貸槓桿套利試算報表 (Ver 1.1.0)"],
+        ["阿奇專業信貸槓桿套利試算報表 (Ver 1.1.1)"],
         [`製表時間：${today}`],
         ["註：本表模擬提前貼現套利，信貸開槓桿請務必注意每月現金流防禦。"],
         [],
-        ["時間", "信貸事件/狀態", "銀行當期月繳款", "實投股票金額", "手頭累積現金", "月底股票市值", "信貸未還本金", "帳戶總淨資產"]
+        ["時間", "信貸事件/狀態", paymentHeader, "定期定額", "現金部位", "股票市值", "剩餘信貸", "總淨資產"]
     ];
 
     if(mode === 'year') {
@@ -561,7 +569,7 @@ function exportToExcel() {
     const url = window.URL.createObjectURL(data);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `阿奇信貸槓桿試算_Ver1.1.0.xlsx`;
+    link.download = `阿奇信貸槓桿試算_Ver1.1.1.xlsx`;
     document.body.appendChild(link);
     link.click();
     setTimeout(() => { document.body.removeChild(link); window.URL.revokeObjectURL(url); }, 100);
