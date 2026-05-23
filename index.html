@@ -24,7 +24,34 @@
             --success-text: #27ae60;     /* 獲利安全綠 */
         }
         
-        body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); padding: 10px; margin: 0; }
+        /* 修正 body padding 以確保導覽列能 100% 貼緊螢幕邊緣 */
+        body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); padding: 0; margin: 0; overflow-x: hidden; }
+        .app-wrapper { padding: 10px; }
+
+        /* ===== 完全移植 FIRE 退休計算機的頂部 Header 與 Sidebar ===== */
+        .site-header { background: #fff; border-bottom: 1px solid #e8eaed; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .hamburger-btn { background: transparent; border: none; cursor: pointer; color: #4b5563; display: flex; align-items: center; justify-content: center; padding: 4px; transition: .2s; border-radius: 6px; }
+        .hamburger-btn:hover { background: #f3f4f6; color: #1a1d23; }
+        .header-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #1a1d23; transition: opacity .2s; }
+        .header-brand:hover { opacity: 0.8; }
+        .brand-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; font-weight: bold; }
+        .brand-name { font-weight: 700; font-size: 15px; white-space: nowrap; }
+
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(26, 29, 35, 0.4); backdrop-filter: blur(2px); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+        .sidebar-menu { position: fixed; top: 0; left: -300px; width: 280px; height: 100vh; background: #fff; z-index: 1001; box-shadow: 4px 0 24px rgba(0,0,0,0.1); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); display: flex; flex-direction: column; }
+        .sidebar-menu.active { transform: translateX(300px); }
+        .sidebar-header { padding: 20px 24px; border-bottom: 1px solid #e8eaed; display: flex; align-items: center; justify-content: space-between; font-weight: 800; font-size: 16px; color: #1a1d23; white-space: nowrap; }
+        .close-sidebar-btn { background: transparent; border: none; font-size: 24px; color: #9ca3af; cursor: pointer; transition: .2s; padding: 0; margin: 0; }
+        .close-sidebar-btn:hover { color: #ef4444; }
+        .sidebar-nav { padding: 20px 12px; display: flex; flex-direction: column; gap: 8px; }
+        .sidebar-link { text-decoration: none; color: #4b5563; padding: 14px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 12px; transition: .2s; }
+        .sidebar-link:hover { background: #f3f4f6; color: #1a1d23; }
+        .sidebar-link.active { background: #f5f3ff; color: #4f46e5; }
+        .sidebar-footer { margin-top: auto; padding: 24px; font-size: 12px; color: #9ca3af; text-align: center; border-top: 1px solid #e8eaed; }
+        /* ===== 導覽列 CSS 結束 ===== */
+
         .container { max-width: 1050px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(26,37,47,0.06); margin: auto; }
         .header-container { text-align: center; border-bottom: 3px solid var(--secondary); padding-bottom: 10px; margin-bottom: 20px; }
         h1 { display: block; color: var(--primary); margin: 0; font-size: 1.4rem; line-height: 1.4; }
@@ -117,193 +144,234 @@
         .footer-info { flex: 1; min-width: 200px; text-align: right; }
         .footer-copyright { text-align: center; margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px; letter-spacing: 1px; }
 
-        @media (min-width: 768px) { .btn-group { flex-direction: row; } h1 { font-size: 1.8rem; display: inline; } .author-tag { display: inline; margin-left: 10px; } .summary-grid { grid-template-columns: repeat(4, 1fr); } .res-value { font-size: 1.3em; } .chart-container { height: 450px; } body { padding: 20px; } }
+        @media (min-width: 768px) { 
+            .app-wrapper { padding: 20px; }
+            .btn-group { flex-direction: row; } 
+            h1 { font-size: 1.8rem; display: inline; } 
+            .author-tag { display: inline; margin-left: 10px; } 
+            .summary-grid { grid-template-columns: repeat(4, 1fr); } 
+            .res-value { font-size: 1.3em; } 
+            .chart-container { height: 450px; } 
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header-container">
-        <h1>🚀 定期定額複利計算機（含信貸槓桿功能）</h1>
-        <span class="author-tag">made by 阿奇 ver.1.2.0 2026</span>
-    </div>
-    
-    <div class="grid">
-        <div class="input-group"><label>開始年月</label><input type="month" id="startDate" value="2026-01"></div>
-        <div class="input-group"><label>期初本金 (元)</label><input type="number" id="initPrincipal" value="700000"></div>
-        <div class="input-group">
-            <label>基礎定期定額 (元/月)<span class="info-icon" data-title="若開啟信貸功能，將自動扣除月繳款後再投入。">i</span></label>
-            <input type="number" id="monthlyInvest" value="10000">
-        </div>
-        <div class="input-group"><label>總投資期數 (年)</label><input type="number" id="periodValue" value="10"></div>
-        <div class="input-group">
-            <label>複利模式<span class="info-icon" data-title="月複利：資產每月成長一次（標準存股模型）。年複利：資產每年底成長一次。">i</span></label>
-            <select id="compoundFreq"><option value="month">月複利</option><option value="year">年複利</option></select>
-        </div>
-        <div class="input-group"><label>預期年化報酬率 (%)</label><input type="number" id="returnRate" value="13" step="0.1"></div>
-    </div>
-
-    <div class="loan-toggle-container">
-        <div>
-            <strong style="color: var(--secondary);">⚡ 啟用信貸槓桿功能</strong>
-            <div style="font-size: 0.75em; color: #7f8c8d;">模擬提前貼現未來現金流，利用時間差套利</div>
-        </div>
-        <label class="switch">
-            <input type="checkbox" id="enableLoan" onchange="toggleLoanSettings()">
-            <span class="slider"></span>
-        </label>
-    </div>
-
-    <div id="loanSettings">
-        <div class="grid">
-            <div class="input-group"><label>信貸總額 (元)</label><input type="number" id="loanAmount" value="500000"></div>
-            <div class="input-group"><label>信貸年利率 (%)</label><input type="number" id="loanRate" value="3.51" step="0.01"></div>
-            <div class="input-group"><label>貸款還款期數 (月)</label><input type="number" id="loanPeriods" value="120"></div>
-            <div class="input-group"><label>信貸開辦費 (元)</label><input type="number" id="loanFee" value="0"></div>
-        </div>
-        <div class="grid" style="grid-template-columns: 1fr 1fr;">
-            <div class="input-group">
-                <label>信貸投入時間點<span class="info-icon" data-title="與投資同步開始：第 1 個月直接撥款入市。自訂特定年月：在未來的指定特定月份突然撥款插隊。">i</span></label>
-                <select id="injectMode" onchange="toggleInjectTime()"><option value="sync">與投資同步開始</option><option value="custom">自訂特定年月</option></select>
-            </div>
-            <div id="customInjectGroup" class="input-group" style="display:none;">
-                <label>信貸加入年月</label>
-                <input type="month" id="injectDate" value="2026-06">
-            </div>
-        </div>
-        <div class="grid" style="grid-template-columns: 1fr;">
-            <div class="input-group">
-                <label>還款期間剩餘資金處理流向<span class="info-icon" data-title="全額再投入：扣除月繳款後的剩餘定期定額預算繼續買股（火箭加速）。保留現金：剩餘的錢存入口袋不買股（保留防禦餘裕）。">i</span></label>
-                <select id="reinvestStrategy">
-                    <option value="reinvest">🟢 扣除月繳款後，剩餘資金「全額再投入」股市（資產極大化）</option>
-                    <option value="keep">🔵 扣除月繳款後，剩餘資金「保留活期現金」在口袋（生活餘裕化）</option>
-                </select>
-            </div>
-        </div>
-        <div class="grid" style="grid-template-columns: 1fr;">
-            <div style="font-size: 0.85em; color: var(--secondary); font-weight: bold;" id="calculatedPmtText">預估每月本利攤還金額：$0 元</div>
-        </div>
-    </div>
-
-    <div class="monte-carlo-toggle-container">
-        <div>
-            <strong style="color: #16a085;">🎲 蒙地卡羅模擬 (1,000次壓力測試)</strong>
-            <div style="font-size: 0.75em; color: #7f8c8d;">加入市場隨機波動性，模擬真實世界極端斷頭風險</div>
-        </div>
-        <label class="switch">
-            <input type="checkbox" id="enableMonteCarlo" onchange="toggleMonteCarloSettings()">
-            <span class="slider"></span>
-        </label>
-    </div>
-
-    <div id="monteCarloSettings">
-        <div class="input-group" style="margin-bottom: 0;">
-            <label>年化波動率 (標準差 %)<span class="info-icon" data-title="數值越大代表股市上下震盪越劇烈。">i</span></label>
-            <input type="number" id="volatility" value="20" step="1">
-        </div>
-        <div class="risk-btn-group">
-            <button class="risk-btn" onclick="setVolatility(10, this)">保守(10%)<br><small>債券類</small></button>
-            <button class="risk-btn" onclick="setVolatility(15, this)">穩健(15%)<br><small>高息ETF</small></button>
-            <button class="risk-btn active" onclick="setVolatility(20, this)">中等(20%)<br><small>大盤ETF</small></button>
-            <button class="risk-btn" onclick="setVolatility(30, this)">積極(30%)<br><small>個股類</small></button>
-        </div>
-    </div>
-
-    <div id="alertBox" class="alert-box"></div>
-
-    <div class="rule-note">
-        <span class="rule-title">⚙️ 信貸套利核心規則：</span>
-        <ul>
-            <li><b>期初投入與分流：</b>每月投資款於月初即刻入市。還款期內，系統自動分流：優先歸還信貸本息，餘額依設定再投入股市或累積為口袋現金。</li>
-            <li><b>摩擦成本貼現：</b>若設定開辦費，插隊當月實際買入股票之金額將會自動扣除開辦費（內扣），但還款仍以總額計算。</li>
-            <li><b>純對照組比較：</b>系統會同時跑一組「完全不借信貸、每月雷打不動定期定額 10,000 元」的模型作為大圖表對照。</li>
-        </ul>
-    </div>
-
-    <div class="btn-group">
-        <button class="btn-calc" onclick="calculate()">開始信貸套利試算</button>
-        <button id="btnExport" class="btn-export" onclick="exportToExcel()">匯出專業美化版 Excel 報表</button>
-    </div>
-
-    <div id="resultBox" class="result">
-        <div class="summary-grid">
-            <div class="res-box">
-                <div class="res-label" id="labelTotal">最終股票市值</div>
-                <div class="res-value" id="resTotal" style="color:#2980b9;">$0</div>
-                <div class="res-sub" id="subTotal"></div>
-            </div>
-            <div class="res-box">
-                <div class="res-label">手頭累積現金</div>
-                <div class="res-value" id="resCash" style="color:var(--success-text);">$0</div>
-            </div>
-            <div class="res-box" style="background: #fdfefe;">
-                <div class="res-label" id="labelGain">槓桿套利淨效益 (對比純存股)</div>
-                <div class="res-value col-gain" id="resGain">$0</div>
-                <div class="res-sub" id="subGain"></div>
-            </div>
-            <div class="res-box" style="background: #fafbfc;">
-                <div class="res-label" id="labelNet">最終帳戶總淨資產</div>
-                <div class="res-value" id="resNet" style="color:var(--primary);">$0</div>
-                <div class="res-sub" id="subNet"></div>
-            </div>
-        </div>
-
-        <div class="view-mode-selector">
-            <select id="viewMode" onchange="renderTable()">
-                <option value="year" selected>年份年報表</option>
-                <option value="month">詳細月報表</option>
-            </select>
-        </div>
-
-        <div class="chart-container"><canvas id="growthChart"></canvas></div>
-
-        <div class="table-wrapper">
-            <table id="dataTable">
-                <thead>
-                    <tr>
-                        <th>時間</th>
-                        <th>信貸事件</th>
-                        <th id="th-payment">銀行年繳款</th>
-                        <th>定期定額</th>
-                        <th>現金部位</th>
-                        <th>股票市值</th>
-                        <th>剩餘信貸</th>
-                        <th>總淨資產</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-            <div id="mcTableNote" style="display:none; text-align:center; padding: 10px; font-size: 0.85em; color: #7f8c8d;">
-                * 由於啟用蒙地卡羅模擬 (1,000次)，上方報表數據顯示為 <b>[中位數 (P50) 軌跡]</b> 之代表路徑。
-            </div>
-        </div>
-    </div>
-
-    <article class="seo-content">
-        <h2>為什麼要使用信貸加速複利計算機？</h2>
-        <p>在長期投資中，<b>時間</b>是複利威力最強大的催化劑。傳統定期定額雖然穩健，但後半段投入的資金往往無法享受足夠長的市場曝險。信貸加速策略的本質在於<b>「將未來的穩定現金流提前貼現」</b>。透過低利的信用貸款將大筆資金直接在 Day 1 定位，拉長其在高效複利市場（如年化報酬率 10% 以上的資產）的滾動時間，進而達成資產跳躍。</p>
-        
-        <h2>信貸套利的致命關鍵：利差與現金流防禦</h2>
-        <p>進行信貸存股必須嚴格遵守兩大鐵律：一是<b>「正利差」</b>，股票資產的長期年化報酬率必須顯著高於信貸利率，否則將產生致命的負套利。二是<b>「現金流穩定」</b>。本計算機特別引入了「手頭保留現金」模型，讓投資人在放大資產的同時，也能清晰量化自己每個月所保留的生活安全餘裕，避免因開槓桿而陷入收支斷裂的窘境。</p>
-    </article>
+<!-- 生態系導覽側邊欄 (與退休計算機 100% 一致) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="sidebar-menu" id="sidebarMenu">
+  <div class="sidebar-header">
+    投資工具生態系
+    <button class="close-sidebar-btn" onclick="toggleSidebar()">&times;</button>
+  </div>
+  <div class="sidebar-nav">
+    <a href="https://archie-studio.github.io/GK-Guardrail-Staking-Monte-Carlo-Simulator/" class="sidebar-link"><span>🏖️</span> FIRE 退休計算機</a>
+    <a href="https://archie-studio.github.io/archie-lab.github.io/" class="sidebar-link"><span>📈</span> 定期定額複利 (含質押)</a>
+    <a href="#" class="sidebar-link active"><span>💳</span> 定期定額複利 (含信貸) (本站)</a>
+  </div>
+  <div class="sidebar-footer">
+    © 2026 Archie Lab Tools
+  </div>
 </div>
 
-<footer class="footer-container">
-    <div class="footer-content">
-        <div class="footer-disclaimer">
-            <strong style="color: #34495e;">⚠️ 免責聲明：</strong><br>
-            本試算結果僅供財務模型模擬參考，不構成任何實際投資與借貸建議。信貸開槓桿雖然不具備股票質押的斷頭風險，但仍受市場波動與個人還款現金流之嚴格约束，申辦前請務必審慎評估。
+<!-- 頂部滿版導覽列 (與退休計算機 100% 一致) -->
+<header class="site-header">
+  <div class="header-left">
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+    <a href="#" class="header-brand">
+      <div class="brand-icon">GK</div>
+      <div class="brand-name">Archie Lab <span>投資工具</span></div>
+    </a>
+  </div>
+</header>
+
+<!-- 加入 app-wrapper 包覆計算機本體，讓導覽列能無縫貼齊螢幕緣 -->
+<div class="app-wrapper">
+    <div class="container">
+        <div class="header-container">
+            <h1>🚀 定期定額複利計算機（含信貸槓桿功能）</h1>
+            <span class="author-tag">made by 阿奇 ver.1.2.1 2026</span>
         </div>
-        <div class="footer-info">
-            <strong style="color: #34495e;">關於工具：</strong><br>
-            版本：Ver 1.2.0 (2026 蒙地卡羅模組加入版)<br>
-            開發：阿奇 Archie Lab
+        
+        <div class="grid">
+            <div class="input-group"><label>開始年月</label><input type="month" id="startDate" value="2026-01"></div>
+            <div class="input-group"><label>期初本金 (元)</label><input type="number" id="initPrincipal" value="700000"></div>
+            <div class="input-group">
+                <label>基礎定期定額 (元/月)<span class="info-icon" data-title="若開啟信貸功能，將自動扣除月繳款後再投入。">i</span></label>
+                <input type="number" id="monthlyInvest" value="10000">
+            </div>
+            <div class="input-group"><label>總投資期數 (年)</label><input type="number" id="periodValue" value="10"></div>
+            <div class="input-group">
+                <label>複利模式<span class="info-icon" data-title="月複利：資產每月成長一次（標準存股模型）。年複利：資產每年底成長一次。">i</span></label>
+                <select id="compoundFreq"><option value="month">月複利</option><option value="year">年複利</option></select>
+            </div>
+            <div class="input-group"><label>預期年化報酬率 (%)</label><input type="number" id="returnRate" value="13" step="0.1"></div>
         </div>
+
+        <div class="loan-toggle-container">
+            <div>
+                <strong style="color: var(--secondary);">⚡ 啟用信貸槓桿功能</strong>
+                <div style="font-size: 0.75em; color: #7f8c8d;">模擬提前貼現未來現金流，利用時間差套利</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="enableLoan" onchange="toggleLoanSettings()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div id="loanSettings">
+            <div class="grid">
+                <div class="input-group"><label>信貸總額 (元)</label><input type="number" id="loanAmount" value="500000"></div>
+                <div class="input-group"><label>信貸年利率 (%)</label><input type="number" id="loanRate" value="3.51" step="0.01"></div>
+                <div class="input-group"><label>貸款還款期數 (月)</label><input type="number" id="loanPeriods" value="120"></div>
+                <div class="input-group"><label>信貸開辦費 (元)</label><input type="number" id="loanFee" value="0"></div>
+            </div>
+            <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="input-group">
+                    <label>信貸投入時間點<span class="info-icon" data-title="與投資同步開始：第 1 個月直接撥款入市。自訂特定年月：在未來的指定特定月份突然撥款插隊。">i</span></label>
+                    <select id="injectMode" onchange="toggleInjectTime()"><option value="sync">與投資同步開始</option><option value="custom">自訂特定年月</option></select>
+                </div>
+                <div id="customInjectGroup" class="input-group" style="display:none;">
+                    <label>信貸加入年月</label>
+                    <input type="month" id="injectDate" value="2026-06">
+                </div>
+            </div>
+            <div class="grid" style="grid-template-columns: 1fr;">
+                <div class="input-group">
+                    <label>還款期間剩餘資金處理流向<span class="info-icon" data-title="全額再投入：扣除月繳款後的剩餘定期定額預算繼續買股（火箭加速）。保留現金：剩餘的錢存入口袋不買股（保留防禦餘裕）。">i</span></label>
+                    <select id="reinvestStrategy">
+                        <option value="reinvest">🟢 扣除月繳款後，剩餘資金「全額再投入」股市（資產極大化）</option>
+                        <option value="keep">🔵 扣除月繳款後，剩餘資金「保留活期現金」在口袋（生活餘裕化）</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid" style="grid-template-columns: 1fr;">
+                <div style="font-size: 0.85em; color: var(--secondary); font-weight: bold;" id="calculatedPmtText">預估每月本利攤還金額：$0 元</div>
+            </div>
+        </div>
+
+        <div class="monte-carlo-toggle-container">
+            <div>
+                <strong style="color: #16a085;">🎲 蒙地卡羅模擬 (1,000次壓力測試)</strong>
+                <div style="font-size: 0.75em; color: #7f8c8d;">加入市場隨機波動性，模擬真實世界極端斷頭風險</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="enableMonteCarlo" onchange="toggleMonteCarloSettings()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div id="monteCarloSettings">
+            <div class="input-group" style="margin-bottom: 0;">
+                <label>年化波動率 (標準差 %)<span class="info-icon" data-title="數值越大代表股市上下震盪越劇烈。">i</span></label>
+                <input type="number" id="volatility" value="20" step="1">
+            </div>
+            <div class="risk-btn-group">
+                <button class="risk-btn" onclick="setVolatility(10, this)">保守(10%)<br><small>債券類</small></button>
+                <button class="risk-btn" onclick="setVolatility(15, this)">穩健(15%)<br><small>高息ETF</small></button>
+                <button class="risk-btn active" onclick="setVolatility(20, this)">中等(20%)<br><small>大盤ETF</small></button>
+                <button class="risk-btn" onclick="setVolatility(30, this)">積極(30%)<br><small>個股類</small></button>
+            </div>
+        </div>
+
+        <div id="alertBox" class="alert-box"></div>
+
+        <div class="rule-note">
+            <span class="rule-title">⚙️ 信貸套利核心規則：</span>
+            <ul>
+                <li><b>期初投入與分流：</b>每月投資款於月初即刻入市。還款期內，系統自動分流：優先歸還信貸本息，餘額依設定再投入股市或累積為口袋現金。</li>
+                <li><b>摩擦成本貼現：</b>若設定開辦費，插隊當月實際買入股票之金額將會自動扣除開辦費（內扣），但還款仍以總額計算。</li>
+                <li><b>純對照組比較：</b>系統會同時跑一組「完全不借信貸、每月雷打不動定期定額 10,000 元」的模型作為大圖表對照。</li>
+            </ul>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-calc" onclick="calculate()">開始信貸套利試算</button>
+            <button id="btnExport" class="btn-export" onclick="exportToExcel()">匯出專業美化版 Excel 報表</button>
+        </div>
+
+        <div id="resultBox" class="result">
+            <div class="summary-grid">
+                <div class="res-box">
+                    <div class="res-label" id="labelTotal">最終股票市值</div>
+                    <div class="res-value" id="resTotal" style="color:#2980b9;">$0</div>
+                    <div class="res-sub" id="subTotal"></div>
+                </div>
+                <div class="res-box">
+                    <div class="res-label">手頭累積現金</div>
+                    <div class="res-value" id="resCash" style="color:var(--success-text);">$0</div>
+                </div>
+                <div class="res-box" style="background: #fdfefe;">
+                    <div class="res-label" id="labelGain">槓桿套利淨效益 (對比純存股)</div>
+                    <div class="res-value col-gain" id="resGain">$0</div>
+                    <div class="res-sub" id="subGain"></div>
+                </div>
+                <div class="res-box" style="background: #fafbfc;">
+                    <div class="res-label" id="labelNet">最終帳戶總淨資產</div>
+                    <div class="res-value" id="resNet" style="color:var(--primary);">$0</div>
+                    <div class="res-sub" id="subNet"></div>
+                </div>
+            </div>
+
+            <div class="view-mode-selector">
+                <select id="viewMode" onchange="renderTable()">
+                    <option value="year" selected>年份年報表</option>
+                    <option value="month">詳細月報表</option>
+                </select>
+            </div>
+
+            <div class="chart-container"><canvas id="growthChart"></canvas></div>
+
+            <div class="table-wrapper">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>時間</th>
+                            <th>信貸事件</th>
+                            <th id="th-payment">銀行年繳款</th>
+                            <th>定期定額</th>
+                            <th>現金部位</th>
+                            <th>股票市值</th>
+                            <th>剩餘信貸</th>
+                            <th>總淨資產</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+                <div id="mcTableNote" style="display:none; text-align:center; padding: 10px; font-size: 0.85em; color: #7f8c8d;">
+                    * 由於啟用蒙地卡羅模擬 (1,000次)，上方報表數據顯示為 <b>[中位數 (P50) 軌跡]</b> 之代表路徑。
+                </div>
+            </div>
+        </div>
+
+        <article class="seo-content">
+            <h2>為什麼要使用信貸加速複利計算機？</h2>
+            <p>在長期投資中，<b>時間</b>是複利威力最強大的催化劑。傳統定期定額雖然穩健，但後半段投入的資金往往無法享受足夠長的市場曝險。信貸加速策略的本質在於<b>「將未來的穩定現金流提前貼現」</b>。透過低利的信用貸款將大筆資金直接在 Day 1 定位，拉長其在高效複利市場（如年化報酬率 10% 以上的資產）的滾動時間，進而達成資產跳躍。</p>
+            
+            <h2>信貸套利的致命關鍵：利差與現金流防禦</h2>
+            <p>進行信貸存股必須嚴格遵守兩大鐵律：一是<b>「正利差」</b>，股票資產的長期年化報酬率必須顯著高於信貸利率，否則將產生致命的負套利。二是<b>「現金流穩定」</b>。本計算機特別引入了「手頭保留現金」模型，讓投資人在放大資產的同時，也能清晰量化自己每個月所保留的生活安全餘裕，避免因開槓桿而陷入收支斷裂的窘境。</p>
+        </article>
     </div>
-    <div class="footer-copyright">
-        © 2026 Archie Studio. All rights reserved.
-    </div>
-</footer>
+
+    <footer class="footer-container">
+        <div class="footer-content">
+            <div class="footer-disclaimer">
+                <strong style="color: #34495e;">⚠️ 免責聲明：</strong><br>
+                本試算結果僅供財務模型模擬參考，不構成任何實際投資與借貸建議。信貸開槓桿雖然不具備股票質押的斷頭風險，但仍受市場波動與個人還款現金流之嚴格约束，申辦前請務必審慎評估。
+            </div>
+            <div class="footer-info">
+                <strong style="color: #34495e;">關於工具：</strong><br>
+                版本：Ver 1.2.1 (UI 滿版佈局升級)<br>
+                開發：阿奇 Archie Lab
+            </div>
+        </div>
+        <div class="footer-copyright">
+            © 2026 Archie Studio. All rights reserved.
+        </div>
+    </footer>
+</div>
 
 <script>
 let myChart = null;
@@ -317,6 +385,19 @@ let mcPaths = {
     median: [],     // P50
     pessimistic: [] // P5
 };
+
+/* --- 生態系導覽列控制邏輯 --- */
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebarMenu');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar.classList.contains('active')) {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+    } else {
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+    }
+}
 
 document.querySelectorAll('#loanAmount, #loanRate, #loanPeriods').forEach(input => {
     input.addEventListener('input', updatePmtPreview);
@@ -705,7 +786,7 @@ function exportToExcel() {
     let simNote = isMonteCarlo ? "【蒙地卡羅模式啟用：本表匯出為中位數 (P50) 代表路徑】" : "【靜態標準試算】";
 
     let exportData = [
-        ["阿奇專業信貸槓桿套利試算報表 (Ver 1.2.0)"],
+        ["阿奇專業信貸槓桿套利試算報表 (Ver 1.2.1)"],
         [`製表時間：${today} / ${simNote}`],
         ["註：本表模擬提前貼現套利，信貸開槓桿請務必注意每月現金流防禦。"],
         [],
@@ -737,7 +818,7 @@ function exportToExcel() {
     const url = window.URL.createObjectURL(data);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `阿奇信貸槓桿試算_Ver1.2.0.xlsx`;
+    link.download = `阿奇信貸槓桿試算_Ver1.2.1.xlsx`;
     document.body.appendChild(link);
     link.click();
     setTimeout(() => { document.body.removeChild(link); window.URL.revokeObjectURL(url); }, 100);
